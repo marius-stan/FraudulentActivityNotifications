@@ -44,8 +44,8 @@ private:
 
 	static int GetNodesCount(TreeNode* root);
 
-	static void SetTreeNodeBranchLeft(TreeNode* treeNode, TreeNodePtr newRightBranch);
-	static void SetTreeNodeBranchRight(TreeNode* treeNode, TreeNodePtr newRightBranch);
+	static void SetTreeNodeBranch(TreeNode* treeNode, TreeNodePtr& branchToReplace, TreeNodePtr newBranch);
+	static TreeNodePtr DetachTreeNodeBranch(TreeNodePtr& treeNodeBranch);
 
 	static TreeNode* FindTreeNode(TreeNode* root, int value);
 
@@ -54,6 +54,9 @@ private:
 	static TreeNodePtr FetchLargestLeftNode(TreeNode* root);
 	static TreeNodePtr FetchSmallestRightNode(TreeNode* root);
 	
+	static TreeNode* FindRightMostNodeParent(TreeNode* root);
+	static TreeNode* FindLeftMostNodeParent(TreeNode* root);
+
 	void RemoveTreeNode(TreeNode* nodeToRemove);
 private:
 	TreeNodePtr m_root;

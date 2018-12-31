@@ -9,8 +9,19 @@ namespace BinaryTreeBalancedTest
 {		
 	TEST_CLASS(BinaryTreeBalancedTestClass)
 	{
+	private:
+		BinaryTreeBalanced BuildTestTree(int startValue, int endValue)
+		{
+			BinaryTreeBalanced tree;
+			for (int i = startValue; i <= endValue; ++i)
+			{
+				tree.Add(i);
+			}
+			return tree;
+		}
+
 	public:
-		TEST_METHOD(InsertTest_KeepSortedValues)
+		TEST_METHOD(TreeAdd_KeepsSortedValues)
 		{
 			BinaryTreeBalanced tree;
 			tree.Add(11);
@@ -54,7 +65,7 @@ namespace BinaryTreeBalancedTest
 			}
 		}
 
-		TEST_METHOD(InsertTest_UnsortedValues)
+		TEST_METHOD(TreeAdd_UnsortedValues)
 		{
 			BinaryTreeBalanced tree;
 			tree.Add(11);
@@ -86,7 +97,7 @@ namespace BinaryTreeBalancedTest
 			Assert::IsTrue(treeValues == expected);
 		}
 
-		TEST_METHOD(InsertTest_AscendingValues)
+		TEST_METHOD(TreeAdd_AscendingValues)
 		{
 			BinaryTreeBalanced tree;
 			for (int i = 1; i <= 15; ++i)
@@ -107,13 +118,9 @@ namespace BinaryTreeBalancedTest
 			Assert::IsTrue(treeValues == expected);
 		}
 
-		TEST_METHOD(RemoveTest_01)
+		TEST_METHOD(TreeRemove_TreeRoots)
 		{
-			BinaryTreeBalanced tree;
-			for (int i = 1; i <= 15; ++i)
-			{
-				tree.Add(i);
-			}
+			BinaryTreeBalanced tree = BuildTestTree(1, 15);
 
 			std::vector<int> expectedRootValues{8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 			for (int expectedRoot: expectedRootValues)
@@ -121,6 +128,50 @@ namespace BinaryTreeBalancedTest
 				Assert::AreEqual(expectedRoot, tree.GetMidValue());
 				tree.Remove(expectedRoot);
 			}
+		}
+
+		TEST_METHOD(TreeRemove_ValuesInAscendingOrder)
+		{
+			int startValue = 1;
+			int endValue = 15;
+			BinaryTreeBalanced tree = BuildTestTree(startValue, endValue);
+
+			std::vector<int> expectedRootValues{ 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15 };
+			size_t expectedRootIndex = 0;
+
+			for (int i = startValue; i <= endValue; ++i)
+			{
+				int expectedRoot = expectedRootValues[expectedRootIndex];
+				++expectedRootIndex;
+
+				Assert::AreEqual(expectedRoot, tree.GetMidValue());
+				
+				tree.Remove(i);
+			}
+
+			Assert::IsTrue(tree.IsEmpty());
+		}
+
+		TEST_METHOD(TreeRemove_ValuesInDescendingOrder)
+		{
+			int startValue = 1;
+			int endValue = 15;
+			BinaryTreeBalanced tree = BuildTestTree(1, 15);
+
+			std::vector<int> expectedRootValues{ 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1 };
+			size_t expectedRootIndex = 0;
+
+			for (int i = endValue; i >= startValue; --i)
+			{
+				int expectedRoot = expectedRootValues[expectedRootIndex];
+				++expectedRootIndex;
+
+				Assert::AreEqual(expectedRoot, tree.GetMidValue());
+
+				tree.Remove(i);
+			}
+
+			Assert::IsTrue(tree.IsEmpty());
 		}
 	};
 }
