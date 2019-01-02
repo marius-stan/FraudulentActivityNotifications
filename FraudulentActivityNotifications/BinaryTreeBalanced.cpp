@@ -22,82 +22,94 @@ void BinaryTreeBalanced::Add(int value, bool rebalanceTree)
 	else
 	{
 		InsertValue(m_root.get(), value);
-		RebalanceTree(m_root, rebalanceTree);
+		if (rebalanceTree)
+		{
+			RebalanceTree(m_root);
+		}
 	}
 }
 
 void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 {
-	if (value < root->m_value)
+	bool wasInserted = false;
+	while (!wasInserted)
 	{
-		TreeNodePtr& leftBranch = root->m_left;
-		if (leftBranch)
+		if (value < root->m_value)
 		{
-			if (value > leftBranch->m_value)
+			TreeNodePtr& leftBranch = root->m_left;
+			if (leftBranch)
 			{
-				// Check if we can do an in-between insert
-				if (!leftBranch->m_right || (value < leftBranch->m_right->m_value))
+				if (value > leftBranch->m_value)
 				{
-					// Take its place
-					TreeNodePtr oldLeftBranch = DetachTreeNodeBranch(leftBranch);
-					TreeNodePtr newLeftBranch = std::make_unique<TreeNode>(value);
-					SetTreeNodeBranch(newLeftBranch.get(), newLeftBranch->m_right, DetachTreeNodeBranch(oldLeftBranch->m_right));
-					SetTreeNodeBranch(newLeftBranch.get(), newLeftBranch->m_left, std::move(oldLeftBranch));
+					// Check if we can do an in-between insert
+					if (!leftBranch->m_right || (value < leftBranch->m_right->m_value))
+					{
+						// Take its place
+						TreeNodePtr oldLeftBranch = DetachTreeNodeBranch(leftBranch);
+						TreeNodePtr newLeftBranch = std::make_unique<TreeNode>(value);
+						SetTreeNodeBranch(newLeftBranch.get(), newLeftBranch->m_right, DetachTreeNodeBranch(oldLeftBranch->m_right));
+						SetTreeNodeBranch(newLeftBranch.get(), newLeftBranch->m_left, std::move(oldLeftBranch));
 
-					SetTreeNodeBranch(root, root->m_left, std::move(newLeftBranch));
+						SetTreeNodeBranch(root, root->m_left, std::move(newLeftBranch));
+						wasInserted = true;
+					}
+					else
+					{
+						root = leftBranch.get();
+					}
 				}
 				else
 				{
-					InsertValue(leftBranch.get(), value);
+					root = leftBranch.get();
 				}
 			}
 			else
 			{
-				InsertValue(leftBranch.get(), value);
+				SetTreeNodeBranch(root, root->m_left, std::make_unique<TreeNode>(value));
+				wasInserted = true;
 			}
 		}
-		else
+		else if (value > root->m_value)
 		{
-			SetTreeNodeBranch(root, root->m_left, std::make_unique<TreeNode>(value));
-		}
-	}
-	else if(value > root->m_value)
-	{
-		TreeNodePtr& rightBranch = root->m_right;
-		if (rightBranch)
-		{
-			if (value < rightBranch->m_value)
+			TreeNodePtr& rightBranch = root->m_right;
+			if (rightBranch)
 			{
-				// Check if we can do an in-between insert
-				if (!rightBranch->m_left || (value > rightBranch->m_left->m_value))
+				if (value < rightBranch->m_value)
 				{
-					// Take its place
-					TreeNodePtr oldRightBranch = DetachTreeNodeBranch(rightBranch);
-					TreeNodePtr newRightBranch = std::make_unique<TreeNode>(value);
-					SetTreeNodeBranch(newRightBranch.get(), newRightBranch->m_left, DetachTreeNodeBranch(oldRightBranch->m_left));
-					SetTreeNodeBranch(newRightBranch.get(), newRightBranch->m_right, std::move(oldRightBranch));
+					// Check if we can do an in-between insert
+					if (!rightBranch->m_left || (value > rightBranch->m_left->m_value))
+					{
+						// Take its place
+						TreeNodePtr oldRightBranch = DetachTreeNodeBranch(rightBranch);
+						TreeNodePtr newRightBranch = std::make_unique<TreeNode>(value);
+						SetTreeNodeBranch(newRightBranch.get(), newRightBranch->m_left, DetachTreeNodeBranch(oldRightBranch->m_left));
+						SetTreeNodeBranch(newRightBranch.get(), newRightBranch->m_right, std::move(oldRightBranch));
 
-					SetTreeNodeBranch(root, root->m_right, std::move(newRightBranch));
+						SetTreeNodeBranch(root, root->m_right, std::move(newRightBranch));
+						wasInserted = true;
+					}
+					else
+					{
+						root = rightBranch.get();
+					}
 				}
 				else
 				{
-					InsertValue(rightBranch.get(), value);
+					root = rightBranch.get();
 				}
 			}
 			else
 			{
-				InsertValue(rightBranch.get(), value);
+				SetTreeNodeBranch(root, root->m_right, std::make_unique<TreeNode>(value));
+				wasInserted = true;
 			}
 		}
 		else
 		{
-			SetTreeNodeBranch(root, root->m_right, std::make_unique<TreeNode>(value));
+			// Duplicate value. Increase ref count;
+			++root->m_refCount;
+			wasInserted = true;
 		}
-	}
-	else
-	{
-		// Duplicate value. Increase ref count;
-		++root->m_refCount;
 	}
 }
 
@@ -249,11 +261,11 @@ void BinaryTreeBalanced::RemoveTreeNode(TreeNode* nodeToRemove)
 bool BinaryTreeBalanced::ReplaceValue(int valueToRemove, int valueToAdd)
 {
 	bool retValue = Remove(valueToRemove, /*rebalanceTree:*/false);
-	Add(valueToAdd, /*rebalanceTree:*/false);
+	Add(valueToAdd, /*rebalanceTree:*/true);
 	return retValue;
 }
 
-void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root, bool balanceSubChildren)
+void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root)
 {
 	if (!root)
 	{
@@ -305,18 +317,14 @@ void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root, bool balanceSubChildre
 		nodesDiff = std::abs(leftNodesCount - rightNodesCount);
 	}
 
-	if (balanceSubChildren)
+	if (root->m_left && root->m_left->m_needsRebalance)
 	{
-		if (root->m_left && root->m_left->m_needsRebalance)
-		{
-			RebalanceTree(root->m_left);
-		}
-		if (root->m_right && root->m_right->m_needsRebalance)
-		{
-			RebalanceTree(root->m_right);
-		}
+		RebalanceTree(root->m_left);
 	}
-	
+	if (root->m_right && root->m_right->m_needsRebalance)
+	{
+		RebalanceTree(root->m_right);
+	}
 	root->m_needsRebalance = false;
 
 	++s_rebalanceCount;

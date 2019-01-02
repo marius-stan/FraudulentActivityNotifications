@@ -60,7 +60,7 @@ private:
 	bool Remove(int value, bool rebalanceTree);
 
 	static void InsertValue(TreeNode* root, int value);
-	static void RebalanceTree(TreeNodePtr& root, bool balanceSubChildren = true);
+	static void RebalanceTree(TreeNodePtr& root);
 
 	static size_t GetNodesCount(TreeNode* root);
 

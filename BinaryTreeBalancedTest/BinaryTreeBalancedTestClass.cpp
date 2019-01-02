@@ -128,6 +128,7 @@ namespace BinaryTreeBalancedTest
 			tree.Add(13);
 			tree.Add(15);
 
+			// This is the case where we don't allow duplicates
 			Assert::AreEqual(7, tree.GetMidValue());
 
 			Assert::IsTrue(tree.Remove(3));
@@ -136,6 +137,11 @@ namespace BinaryTreeBalancedTest
 			Assert::IsFalse(tree.Remove(3));
 
 			Assert::AreEqual(9, tree.GetMidValue());
+
+			// This is the case where we allow duplicates
+			/*std::pair<int, int> midValues = tree.GetMidValues();
+			Assert::AreEqual(5, midValues.first);
+			Assert::AreEqual(7, midValues.second);*/
 		}
 
 		TEST_METHOD(TreeRemove_TreeRoots)
