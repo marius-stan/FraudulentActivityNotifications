@@ -462,6 +462,8 @@ std::vector<int> BinaryTreeBalanced::GetValues_InOrder(TreeNode* root)
 
 int BinaryTreeBalanced::GetNodesCount(TreeNode* root)
 {
+	// mvstan FIXME We need to optimize this.
+
 	if (!root)
 	{
 		return 0;
