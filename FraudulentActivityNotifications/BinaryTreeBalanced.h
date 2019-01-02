@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <utility>
 
 class TreeNode;
 using TreeNodePtr = std::unique_ptr<TreeNode>;
@@ -32,8 +33,7 @@ public:
 	size_t GetNodesCount() const;
 
 	int GetMidValue() const;
-	int GetMidValueLeft() const;
-	int GetMidValueRight() const;
+	std::pair<int, int> GetMidValues() const;
 
 	std::vector<int> GetValues_DepthTraversal() const;
 	std::vector<int> GetValues_InOrder() const;

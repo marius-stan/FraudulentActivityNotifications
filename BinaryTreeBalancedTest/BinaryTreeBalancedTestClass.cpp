@@ -173,5 +173,45 @@ namespace BinaryTreeBalancedTest
 
 			Assert::IsTrue(tree.IsEmpty());
 		}
+
+		TEST_METHOD(TreeMidValues_AscendingValuesEven)
+		{
+			BinaryTreeBalanced tree;
+			tree.Add(1);
+			tree.Add(2);
+			tree.Add(3);
+			tree.Add(4);
+
+			std::pair<int, int> midValues = tree.GetMidValues();
+			Assert::AreEqual(2, midValues.first);
+			Assert::AreEqual(3, midValues.second);
+		}
+
+		TEST_METHOD(TreeMidValues_DescendingValuesEven)
+		{
+			BinaryTreeBalanced tree;
+			tree.Add(4);
+			tree.Add(3);
+			tree.Add(2);
+			tree.Add(1);
+
+			std::pair<int, int> midValues = tree.GetMidValues();
+			Assert::AreEqual(2, midValues.first);
+			Assert::AreEqual(3, midValues.second);
+		}
+
+		TEST_METHOD(TreeMidValues_OddNumberOfValues)
+		{
+			BinaryTreeBalanced tree;
+			tree.Add(5);
+			tree.Add(4);
+			tree.Add(3);
+			tree.Add(2);
+			tree.Add(1);
+
+			std::pair<int, int> midValues = tree.GetMidValues();
+			Assert::AreEqual(3, midValues.first);
+			Assert::AreEqual(4, midValues.second);
+		}
 	};
 }

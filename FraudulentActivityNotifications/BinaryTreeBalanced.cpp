@@ -378,7 +378,7 @@ TreeNode* BinaryTreeBalanced::FindLeftMostNodeParent(TreeNode* root)
 
 bool BinaryTreeBalanced::IsEmpty() const
 {
-	return (GetNodesCount() == 0);
+	return (m_root == nullptr);
 }
 
 size_t BinaryTreeBalanced::GetNodesCount() const
@@ -391,14 +391,38 @@ int BinaryTreeBalanced::GetMidValue() const
 	return m_root->m_value;
 }
 
-int BinaryTreeBalanced::GetMidValueLeft() const
+std::pair<int, int> BinaryTreeBalanced::GetMidValues() const
 {
-	return GetMidValue();
-}
+	size_t nodesCount = GetNodesCount();
+	if (nodesCount < 2)
+	{
+		throw new std::exception("BinaryTreeBalanced::GetMidValues: tree has too few values.");
+	}
 
-int BinaryTreeBalanced::GetMidValueRight() const
-{
-	return m_root->m_right->m_value;
+	std::pair<int, int> midValues;
+	if (nodesCount % 2 == 1)
+	{
+		midValues.first = m_root->m_value;
+		midValues.second = m_root->m_right->m_value;
+	}
+	else
+	{
+		size_t nodesCountLeft = GetNodesCount(m_root->m_left.get());
+		size_t nodesCountRight = GetNodesCount(m_root->m_right.get());
+		if (nodesCountLeft < nodesCountRight)
+		{
+			// Right-leaning tree
+			midValues.first = m_root->m_value;
+			midValues.second = m_root->m_right->m_value;
+		}
+		else
+		{
+			// Left-leaning tree
+			midValues.first = m_root->m_left->m_value;
+			midValues.second = m_root->m_value;
+		}
+	}
+	return midValues;
 }
 
 std::vector<int> BinaryTreeBalanced::GetValues_DepthTraversal() const
