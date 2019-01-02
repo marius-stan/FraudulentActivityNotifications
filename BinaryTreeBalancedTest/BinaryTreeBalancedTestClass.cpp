@@ -99,11 +99,7 @@ namespace BinaryTreeBalancedTest
 
 		TEST_METHOD(TreeAdd_AscendingValues)
 		{
-			BinaryTreeBalanced tree;
-			for (int i = 1; i <= 15; ++i)
-			{
-				tree.Add(i);
-			}
+			BinaryTreeBalanced tree = BuildTestTree(1, 15);
 			
 			Assert::AreEqual(8, tree.GetMidValue());
 
@@ -116,6 +112,30 @@ namespace BinaryTreeBalancedTest
 				  1,  3,  5,  7,  9,   11, 13,  15 
 			};
 			Assert::IsTrue(treeValues == expected);
+		}
+
+		TEST_METHOD(TreeMidValues_DuplicatedValues)
+		{
+			BinaryTreeBalanced tree;
+			tree.Add(1);
+			tree.Add(3);
+			tree.Add(3);
+			tree.Add(3);
+			tree.Add(5);
+			tree.Add(7);
+			tree.Add(9);
+			tree.Add(11);
+			tree.Add(13);
+			tree.Add(15);
+
+			Assert::AreEqual(7, tree.GetMidValue());
+
+			Assert::IsTrue(tree.Remove(3));
+			Assert::IsTrue(tree.Remove(3));
+			Assert::IsTrue(tree.Remove(3));
+			Assert::IsFalse(tree.Remove(3));
+
+			Assert::AreEqual(9, tree.GetMidValue());
 		}
 
 		TEST_METHOD(TreeRemove_TreeRoots)
@@ -212,6 +232,54 @@ namespace BinaryTreeBalancedTest
 			std::pair<int, int> midValues = tree.GetMidValues();
 			Assert::AreEqual(3, midValues.first);
 			Assert::AreEqual(4, midValues.second);
+		}
+
+		TEST_METHOD(TreeMidValues_LargeNumberOfValues)
+		{
+			BinaryTreeBalanced tree;
+			tree.Add(1);
+			tree.Add(3);
+			tree.Add(5);
+			tree.Add(7);
+			tree.Add(9);
+			tree.Add(11);
+			tree.Add(13);
+			tree.Add(15);
+
+			std::pair<int, int> midValues = tree.GetMidValues();
+			Assert::AreEqual(7, midValues.first);
+			Assert::AreEqual(9, midValues.second);
+		}
+
+		TEST_METHOD(Tree_GetNodesCount)
+		{
+			BinaryTreeBalanced tree = BuildTestTree(1, 15);
+			
+			Assert::AreEqual(15u, tree.GetNodesCount());
+
+			// Remove the smallest value from the tree
+			Assert::IsTrue(tree.Remove(1));
+			Assert::AreEqual(14u, tree.GetNodesCount());
+
+			// Remove the largest value from the tree
+			Assert::IsTrue(tree.Remove(15));
+			Assert::AreEqual(13u, tree.GetNodesCount());
+
+			// Add the smallest value back
+			tree.Add(1);
+			Assert::AreEqual(14u, tree.GetNodesCount());
+
+			// Add the largest value back
+			tree.Add(15);
+			Assert::AreEqual(15u, tree.GetNodesCount());
+
+			// Remove the root value from the tree
+			Assert::IsTrue(tree.Remove(8));
+			Assert::AreEqual(14u, tree.GetNodesCount());
+
+			// Add the root value back
+			tree.Add(8);
+			Assert::AreEqual(15u, tree.GetNodesCount());
 		}
 	};
 }
