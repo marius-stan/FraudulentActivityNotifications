@@ -117,7 +117,7 @@ namespace BinaryTreeBalancedTest
 		TEST_METHOD(TreeMidValues_DuplicatedValues)
 		{
 			// mvstan FIXME
-			/*BinaryTreeBalanced tree;
+			BinaryTreeBalanced tree;
 			tree.Add(1);
 			tree.Add(3);
 			tree.Add(3);
@@ -132,7 +132,7 @@ namespace BinaryTreeBalancedTest
 			// This is the case where we allow duplicates
 			std::pair<int, int> midValues = tree.GetMidValues();
 			Assert::AreEqual(5, midValues.first);
-			Assert::AreEqual(7, midValues.second);*/
+			Assert::AreEqual(7, midValues.second);
 		}
 
 		TEST_METHOD(TreeRemove_TreeRoots)
@@ -286,7 +286,7 @@ namespace BinaryTreeBalancedTest
 			BinaryTreeBalanced tree;
 			
 			int startValue = 1;
-			int endValue = 10000;
+			int endValue = 1000;
 
 			std::vector<int> rebalanceCounts;
 			std::vector<int> values;
@@ -298,8 +298,8 @@ namespace BinaryTreeBalancedTest
 			tree.AddValues(values.begin(), values.end());
 
 			std::pair<int, int> midValues = tree.GetMidValues();
-			Assert::AreEqual(5000, midValues.first);
-			Assert::AreEqual(5001, midValues.second);
+			Assert::AreEqual(500, midValues.first);
+			Assert::AreEqual(501, midValues.second);
 
 			// Worst-case scenario
 			/*for (int i = startValue; i <= endValue; ++i)
@@ -314,8 +314,8 @@ namespace BinaryTreeBalancedTest
 			}
 
 			midValues = tree.GetMidValues();
-			Assert::AreEqual(15000, midValues.first);
-			Assert::AreEqual(15001, midValues.second);
+			Assert::AreEqual(1500, midValues.first);
+			Assert::AreEqual(1501, midValues.second);
 		}
 	};
 }

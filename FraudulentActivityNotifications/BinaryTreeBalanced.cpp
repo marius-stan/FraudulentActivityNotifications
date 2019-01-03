@@ -106,6 +106,34 @@ void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 				wasInserted = true;
 			}
 		}
+		else
+		{
+			// Duplicate value.
+			// Insert it in the side that has the fewer nodes.
+			if (!root->m_left)
+			{
+				SetTreeNodeBranch(root, root->m_left, std::make_unique<TreeNode>(value));
+				wasInserted = true;
+			}
+			else if (!root->m_right)
+			{
+				SetTreeNodeBranch(root, root->m_right, std::make_unique<TreeNode>(value));
+				wasInserted = true;
+			}
+			else
+			{
+				int leftNodesCount = GetNodesCount(root->m_left.get());
+				int rightNodesCount = GetNodesCount(root->m_right.get());
+				if (leftNodesCount <= rightNodesCount)
+				{
+					root = root->m_left.get();
+				}
+				else
+				{
+					root = root->m_right.get();
+				}
+			}
+		}
 	}
 }
 
