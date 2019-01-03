@@ -13,7 +13,6 @@ public:
 	TreeNode(int value = 0)
 		: m_parent(nullptr)
 		, m_nodesCount(1)
-		, m_refCount(1)
 		, m_needsRebalance(false)
 		, m_value(value)
 	{}
@@ -23,7 +22,6 @@ public:
 	TreeNodePtr m_left;
 	TreeNodePtr m_right;
 	size_t m_nodesCount;
-	size_t m_refCount;
 	bool m_needsRebalance;
 	int m_value;
 };
@@ -33,7 +31,7 @@ class BinaryTreeBalanced
 public:
 	BinaryTreeBalanced();
 
-	void Add(int value);
+	int Add(int value);
 	bool Remove(int value);
 	bool ReplaceValue(int valueToRemove, int valueToAdd);
 	bool IsEmpty() const;
@@ -56,11 +54,11 @@ public:
 	}
 
 private:
-	void Add(int value, bool rebalanceTree);
+	int Add(int value, bool rebalanceTree);
 	bool Remove(int value, bool rebalanceTree);
 
 	static void InsertValue(TreeNode* root, int value);
-	static void RebalanceTree(TreeNodePtr& root);
+	static int RebalanceTree(TreeNodePtr& root);
 
 	static size_t GetNodesCount(TreeNode* root);
 
@@ -85,6 +83,4 @@ private:
 	static TreeNodePtr* FindSmallestRightNode(TreeNode* root);
 private:
 	TreeNodePtr m_root;
-
-	static int s_rebalanceCount;
 };

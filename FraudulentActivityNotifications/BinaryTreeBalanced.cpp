@@ -1,20 +1,19 @@
 #include "stdafx.h"
 #include "BinaryTreeBalanced.h"
 
-int BinaryTreeBalanced::s_rebalanceCount = 0;
-
 BinaryTreeBalanced::BinaryTreeBalanced()
 {
 
 }
 
-void BinaryTreeBalanced::Add(int value)
+int BinaryTreeBalanced::Add(int value)
 {
-	Add(value, /*rebalanceTree:*/true);
+	return Add(value, /*rebalanceTree:*/true);
 }
 
-void BinaryTreeBalanced::Add(int value, bool rebalanceTree)
+int BinaryTreeBalanced::Add(int value, bool rebalanceTree)
 {
+	int rebalanceCount = 0; // mvstan FIXME This is for debug only
 	if (!m_root)
 	{
 		m_root = std::make_unique<TreeNode>(value);
@@ -24,9 +23,10 @@ void BinaryTreeBalanced::Add(int value, bool rebalanceTree)
 		InsertValue(m_root.get(), value);
 		if (rebalanceTree)
 		{
-			RebalanceTree(m_root);
+			rebalanceCount = RebalanceTree(m_root);
 		}
 	}
+	return rebalanceCount;
 }
 
 void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
@@ -106,8 +106,7 @@ void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 		}
 		else
 		{
-			// Duplicate value. Increase ref count;
-			++root->m_refCount;
+			// Value was already inserted
 			wasInserted = true;
 		}
 	}
@@ -175,14 +174,10 @@ bool BinaryTreeBalanced::Remove(int value, bool rebalanceTree)
 	if (nodeToRemove)
 	{
 		wasFound = true;
-		--nodeToRemove->m_refCount;
-		if (nodeToRemove->m_refCount <= 0)
+		RemoveTreeNode(nodeToRemove);
+		if (rebalanceTree)
 		{
-			RemoveTreeNode(nodeToRemove);
-			if (rebalanceTree)
-			{
-				RebalanceTree(m_root);
-			}
+			RebalanceTree(m_root);
 		}
 	}
 	return wasFound;
@@ -265,11 +260,12 @@ bool BinaryTreeBalanced::ReplaceValue(int valueToRemove, int valueToAdd)
 	return retValue;
 }
 
-void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root)
+int BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root)
 {
+	int rebalanceCount = 0;
 	if (!root)
 	{
-		return;
+		return rebalanceCount;
 	}
 
 	int leftNodesCount = GetNodesCount(root->m_left.get());
@@ -277,38 +273,40 @@ void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root)
 	int nodesDiff = std::abs(leftNodesCount - rightNodesCount);
 	while(nodesDiff > 1)
 	{
+		++rebalanceCount;
+
+		// Keep the original root parent
 		TreeNode* rootParent = root->m_parent;
+
+		// Detach the old root from the tree
+		TreeNodePtr oldRoot = DetachTreeNodeBranch(root);
+
 		TreeNodePtr newRoot;
-		TreeNodePtr newLeftNode;
-		TreeNodePtr newRightNode;
 		if (leftNodesCount < rightNodesCount)
 		{
-			// Find smallest node in right root branch.
-			// Make it the new root.
-			newRoot = FetchSmallestRightNode(root.get());
-
-			// Keep the remainder of the right root branch.
-			newRightNode = DetachTreeNodeBranch(root->m_right);
-
-			// The old root becomes the new left branch
-			newLeftNode = DetachTreeNodeBranch(root);
+			// Find the smallest node in right root branch.
+			// This will be the new root.
+			newRoot = FetchSmallestRightNode(oldRoot.get());
 		}
 		else
 		{
 			// Find the largest node in left root branch.
-			// Make it the new root.
-			newRoot = FetchLargestLeftNode(root.get());
-
-			// Keep the remainder of the left root branch.
-			newLeftNode = DetachTreeNodeBranch(root->m_left);
-
-			// The old root becomes the new right branch
-			newRightNode = DetachTreeNodeBranch(root);
+			// This will be the new root.
+			newRoot = FetchLargestLeftNode(oldRoot.get());
 		}
 
-		// Update the tree hierarchy
+		// Keep the remainder of the left root branch.
+		TreeNodePtr newLeftNode = DetachTreeNodeBranch(oldRoot->m_left);
 		SetTreeNodeBranch(newRoot.get(), newRoot->m_left, std::move(newLeftNode));
+
+		// Keep the remainder of the right root branch.
+		TreeNodePtr newRightNode = DetachTreeNodeBranch(oldRoot->m_right);
 		SetTreeNodeBranch(newRoot.get(), newRoot->m_right, std::move(newRightNode));
+		
+		// Insert the value of the oldRoot in the new sub-tree
+		InsertValue(newRoot.get(), oldRoot->m_value);
+
+		// Update the tree hierarchy
 		SetTreeNodeBranch(rootParent, root, std::move(newRoot));
 
 		// Check the nodes count again
@@ -319,15 +317,15 @@ void BinaryTreeBalanced::RebalanceTree(TreeNodePtr& root)
 
 	if (root->m_left && root->m_left->m_needsRebalance)
 	{
-		RebalanceTree(root->m_left);
+		rebalanceCount += RebalanceTree(root->m_left);
 	}
 	if (root->m_right && root->m_right->m_needsRebalance)
 	{
-		RebalanceTree(root->m_right);
+		rebalanceCount += RebalanceTree(root->m_right);
 	}
 	root->m_needsRebalance = false;
 
-	++s_rebalanceCount;
+	return rebalanceCount;
 }
 
 TreeNodePtr BinaryTreeBalanced::FetchLargestLeftNode(TreeNode* root)

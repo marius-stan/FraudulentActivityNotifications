@@ -128,20 +128,10 @@ namespace BinaryTreeBalancedTest
 			tree.Add(13);
 			tree.Add(15);
 
-			// This is the case where we don't allow duplicates
-			Assert::AreEqual(7, tree.GetMidValue());
-
-			Assert::IsTrue(tree.Remove(3));
-			Assert::IsTrue(tree.Remove(3));
-			Assert::IsTrue(tree.Remove(3));
-			Assert::IsFalse(tree.Remove(3));
-
-			Assert::AreEqual(9, tree.GetMidValue());
-
 			// This is the case where we allow duplicates
-			/*std::pair<int, int> midValues = tree.GetMidValues();
+			std::pair<int, int> midValues = tree.GetMidValues();
 			Assert::AreEqual(5, midValues.first);
-			Assert::AreEqual(7, midValues.second);*/
+			Assert::AreEqual(7, midValues.second);
 		}
 
 		TEST_METHOD(TreeRemove_TreeRoots)
@@ -286,6 +276,26 @@ namespace BinaryTreeBalancedTest
 			// Add the root value back
 			tree.Add(8);
 			Assert::AreEqual(15u, tree.GetNodesCount());
+		}
+
+		TEST_METHOD(Tree_Balancing)
+		{
+			// mvstan FIXME We need to figure out a way
+			// of writing performance tests.
+			BinaryTreeBalanced tree;
+			
+			std::vector<int> rebalanceCounts;
+			int startValue = 1;
+			int endValue = 10000;
+			for (int i = startValue; i <= endValue; ++i)
+			{
+				int rebalances = tree.Add(i);
+				rebalanceCounts.push_back(rebalances);
+			}
+
+			std::pair<int, int> midValues = tree.GetMidValues();
+			//Assert::AreEqual(10, midValues.first);
+			//Assert::AreEqual(11, midValues.second);
 		}
 	};
 }
