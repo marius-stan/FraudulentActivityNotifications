@@ -42,7 +42,8 @@ void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 				if (value > leftBranch->m_value)
 				{
 					// Check if we can do an in-between insert
-					if (!leftBranch->m_right || (value < leftBranch->m_right->m_value))
+					TreeNodePtr* smallestRightNode = FindSmallestRightNode(leftBranch.get());
+					if (!smallestRightNode || (value < (*smallestRightNode)->m_value))
 					{
 						// Take its place
 						TreeNodePtr oldLeftBranch = DetachTreeNodeBranch(leftBranch);
@@ -77,7 +78,8 @@ void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 				if (value < rightBranch->m_value)
 				{
 					// Check if we can do an in-between insert
-					if (!rightBranch->m_left || (value > rightBranch->m_left->m_value))
+					TreeNodePtr* largestLeftNode = FindLargestLeftNode(rightBranch.get());
+					if (!largestLeftNode || (value > (*largestLeftNode)->m_value))
 					{
 						// Take its place
 						TreeNodePtr oldRightBranch = DetachTreeNodeBranch(rightBranch);
@@ -103,11 +105,6 @@ void BinaryTreeBalanced::InsertValue(TreeNode* root, int value)
 				SetTreeNodeBranch(root, root->m_right, std::make_unique<TreeNode>(value));
 				wasInserted = true;
 			}
-		}
-		else
-		{
-			// Value was already inserted
-			wasInserted = true;
 		}
 	}
 }
